@@ -1,4 +1,4 @@
-package com.devspace.taskbeats
+package com.devspace.taskbeats.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.devspace.taskbeats.R
+import com.devspace.taskbeats.data.model.CategoryUiData
 
 class CategoryListAdapter :
     ListAdapter<CategoryUiData, CategoryListAdapter.CategoryViewHolder>(CategoryListAdapter) {

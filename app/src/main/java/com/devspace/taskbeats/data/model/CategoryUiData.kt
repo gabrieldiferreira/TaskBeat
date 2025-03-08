@@ -1,4 +1,4 @@
-package com.devspace.taskbeats
+package com.devspace.taskbeats.data.model
 
 data class CategoryUiData(
     val name: String,
