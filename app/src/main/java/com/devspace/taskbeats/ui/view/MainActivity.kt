@@ -3,16 +3,36 @@ package com.devspace.taskbeats.ui.view
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.devspace.taskbeats.R
+import com.devspace.taskbeats.data.local.CategoryEntity
+import com.devspace.taskbeats.data.local.TaskBeatDatabase
 import com.devspace.taskbeats.data.model.CategoryUiData
 import com.devspace.taskbeats.data.model.TaskUiData
 import com.devspace.taskbeats.ui.adapter.CategoryListAdapter
 import com.devspace.taskbeats.ui.adapter.TaskListAdapter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            TaskBeatDatabase::class.java, "database-task-beat"
+        ).build()
+    }
+
+    private val categoryDao by lazy {
+        db.getCategoryDao()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        insertDefaultCategory()
 
         val rvCategory = findViewById<RecyclerView>(R.id.rv_categories)
         val rvTask = findViewById<RecyclerView>(R.id.rv_tasks)
@@ -45,6 +65,17 @@ class MainActivity : AppCompatActivity() {
 
         rvTask.adapter = taskAdapter
         taskAdapter.submitList(tasks)
+    }
+    private fun insertDefaultCategory(){
+        val categoriesEntity = categories.map {
+            CategoryEntity(
+                name = it.name,
+                isSelected = it.isSelected
+            )
+        }
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryDao.insertAll(categoriesEntity)
+        }
     }
 }
 
