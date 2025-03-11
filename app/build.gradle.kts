@@ -15,6 +15,15 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        buildConfigField("String", "OPENAI_API_KEY", "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\""
+        )
+        println("OPENAI_API_KEY value: ${project.findProperty("OPENAI_API_KEY") ?: "Not found"}")
+
+        // Habilitar suporte a BuildConfig
+        buildFeatures {
+            buildConfig = true
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,6 +36,8 @@ android {
             )
         }
     }
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

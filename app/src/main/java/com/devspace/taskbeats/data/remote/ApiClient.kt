@@ -1,5 +1,7 @@
 package com.devspace.taskbeats.data.remote
 
+import android.util.Log
+import com.devspace.taskbeats.BuildConfig
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -10,16 +12,19 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     private const val BASE_URL = "https://api.openai.com/"
-    private const val API_KEY = "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"
 
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor { chain ->
-            val original = chain.request()
-            val request = original.newBuilder()
-                .header("Authorization", "Bearer $API_KEY")
-                .header("Content-Type", "application/json")
+            val apiKey = BuildConfig.OPENAI_API_KEY
+            Log.d("ApiClient", "API Key: $apiKey")
+            if (apiKey.isEmpty()) {
+                Log.e("ApiClient", "API Key is empty or not loaded!")
+            }
+            val request = chain.request().newBuilder()
+                .addHeader("Authorization", "Bearer $apiKey")
+                .addHeader("Content-Type", "application/json")
                 .build()
             chain.proceed(request)
         }
