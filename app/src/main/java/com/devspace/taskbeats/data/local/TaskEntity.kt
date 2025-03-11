@@ -3,7 +3,7 @@ package com.devspace.taskbeats.data.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "task_entity")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

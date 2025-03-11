@@ -30,7 +30,7 @@ class TaskListAdapter :
 
         fun bind(task: TaskUiData) {
             tvCategory.text = task.category
-            tvTask.text = task.name
+            tvTask.text = task.title
         }
     }
 
@@ -40,7 +40,7 @@ class TaskListAdapter :
         }
 
         override fun areContentsTheSame(oldItem: TaskUiData, newItem: TaskUiData): Boolean {
-            return oldItem.name == newItem.name
+            return oldItem.title == newItem.title
         }
 
     }

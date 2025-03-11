@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     private fun insertDefaultTasks() {
         val tasksEntities = tasks.map {
             TaskEntity(
-                name = it.name,
+                name = it.title,
                 category = it.category
             )
         }

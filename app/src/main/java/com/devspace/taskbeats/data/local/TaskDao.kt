@@ -8,9 +8,9 @@ import androidx.room.Query
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM Taskentity")
+    @Query("SELECT * FROM task_entity")
     fun getAll(): List<TaskEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(taskEntities: List<TaskEntity>)
+    fun insertAll(taskEntities: List<TaskEntity>) : List<Long>
 }
