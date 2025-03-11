@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     private fun insertDefaultTasks() {
         val tasksEntities = tasks.map {
             TaskEntity(
-                name = it.title,
+                name = it.name,
                 category = it.category
             )
         }
@@ -113,46 +113,54 @@ val categories: List<CategoryUiData> = listOf()
 val tasks = listOf(
     TaskUiData(
         "Ler 10 páginas do livro atual",
-        "STUDY"
+        "STUDY",
+        "e"
     ),
     TaskUiData(
         "45 min de treino na academia",
-        "HEALTH"
+        "HEALTH",
+        "e"
     ),
     TaskUiData(
         "Correr 5km",
-        "HEALTH"
+        "HEALTH","e"
     ),
     TaskUiData(
         "Meditar por 10 min",
-        "WELLNESS"
+        "WELLNESS","e"
     ),
     TaskUiData(
         "Silêncio total por 5 min",
-        "WELLNESS"
+        "WELLNESS",
+        "e"
     ),
     TaskUiData(
         "Descer o livo",
-        "HOME"
+        "HOME",""
     ),
     TaskUiData(
         "Tirar caixas da garagem",
-        "HOME"
+        "HOME",
+        "e"
     ),
     TaskUiData(
         "Lavar o carro",
-        "HOME"
+        "HOME",
+        "e"
     ),
     TaskUiData(
         "Gravar aulas DevSpace",
-        "WORK"
+        "WORK",
+        "g"
     ),
     TaskUiData(
         "Criar planejamento de vídeos da semana",
-        "WORK"
+        "WORK",
+        "e"
     ),
     TaskUiData(
         "Soltar reels da semana",
-        "WORK"
+        "WORK",
+        "r"
     ),
 )
