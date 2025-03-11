@@ -35,9 +35,14 @@ class ApiTestActivityMock : AppCompatActivity() {
                 Log.d("ApiTestMock", "Generated Subtasks: $subTasks")
                 Toast.makeText(this@ApiTestActivityMock, "Generated Subtasks: $subTasks", Toast.LENGTH_LONG).show()
 
-                val savedSubTasks = repository.getSubTasksByTaskId(1)
-                Log.d("ApiTestMock", "Saved Subtasks from Room: $savedSubTasks")
+                val taskId = subTasks.firstOrNull()?.taskId ?: 0L
+                val savedSubTasks = repository.getSubTasksByTaskId(taskId)
+                Log.d("ApiTestMock", "Saved Subtasks from Room (taskId=$taskId): $savedSubTasks")
                 Toast.makeText(this@ApiTestActivityMock, "Saved Subtasks: $savedSubTasks", Toast.LENGTH_LONG).show()
+
+                val savedTask = repository.getTaskById(taskId)
+                Log.d("ApiTestMock", "Saved Task (taskId=$taskId): $savedTask")
+                Toast.makeText(this@ApiTestActivityMock, "Saved Task: $savedTask", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 Log.e("ApiTestMock", "Exception: ${e.message}")
                 Toast.makeText(this@ApiTestActivityMock, "Exception: ${e.message}", Toast.LENGTH_SHORT).show()

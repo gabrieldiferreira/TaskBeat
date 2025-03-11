@@ -13,4 +13,16 @@ interface TaskDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(taskEntities: List<TaskEntity>) : List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSubTasks(subTasks: List<SubTaskEntity>): List<Long>
+
+    @Query("SELECT * FROM sub_task_entity WHERE taskId = :taskId")
+    fun getSubTasksByTaskId(taskId: Long): List<SubTaskEntity>
+
+    @Query("DELETE FROM sub_task_entity WHERE taskId = :taskId")
+    fun deleteSubTasksByTaskId(taskId: Long)
+
+    @Query("DELETE FROM task_entity WHERE id = :taskId")
+    fun deleteTask(taskId: Long)
 }
