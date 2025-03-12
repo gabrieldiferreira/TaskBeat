@@ -80,6 +80,17 @@ class MainActivity : AppCompatActivity() {
                     isSelected = it.isSelected
                 )
             }
+
+                .toMutableList()
+
+            categoriesUiData.add(
+                CategoryUiData(
+                    name = "+",
+                    isSelected = false,
+                )
+            )
+
+
             withContext(Dispatchers.Main){
                 adapter.submitList(categoriesUiData)
             }
