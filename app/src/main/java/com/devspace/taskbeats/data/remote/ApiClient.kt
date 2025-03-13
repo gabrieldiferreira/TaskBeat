@@ -11,14 +11,14 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://api.openai.com/"
+    private const val BASE_URL = "https://api.openai.com/v1/"
 
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor { chain ->
-            val apiKey = BuildConfig.OPENAI_API_KEY
-            Log.d("ApiClient", "API Key: $apiKey")
+            val apiKey = BuildConfig.OPENAI_API_KEY.trim()
+            Log.d("ApiClient", "API Key carregada: $apiKey")
             if (apiKey.isEmpty()) {
                 Log.e("ApiClient", "API Key is empty or not loaded!")
             }

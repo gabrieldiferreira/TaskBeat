@@ -109,26 +109,35 @@ class TaskRepository(
         Log.d("TaskRepository", "Tarefa inserida com ID: $taskId, LiveData atualizado")
 
         // Verificar se já existem subtarefas salvas para essa tarefa
-        val existingSubtasks = taskDao.getSubtasksForTask(taskId).value
-        if (!existingSubtasks.isNullOrEmpty()) {
+        val existingTask = taskDao.getTaskWithSubtasksById(taskId)
+        if (existingTask != null && existingTask.subtasks.isNotEmpty()) {
             Log.d("TaskRepository", "Subtarefas já existem para a tarefa $taskId. Usando dados salvos.")
-            return@withContext taskDao.getTaskWithSubtasksById(taskId)
-                ?: throw Exception("Tarefa não encontrada após inserção (subtarefas existentes)")
+            return@withContext existingTask
         }
+
 
         // Gerar subtarefas com a API
         val category = categoryDao.getById(categoryId)?.name ?: "Geral"
         val prompt = """
             Você é um assistente de produtividade especializado em tarefas da categoria "$category".
             Sua tarefa é dividir uma tarefa principal em subtarefas específicas, práticas e numeradas.
-            Liste apenas as subtarefas, sem explicações adicionais.
-            Para a tarefa principal "$name", forneça as subtarefas numeradas.
+            Exemplo:
+            - Tarefa Principal: "Criar um aplicativo"
+            - Subtarefas:
+            1. Definir os requisitos do aplicativo
+            2. Criar wireframes
+            3. Desenvolver a interface
+            4. Implementar funcionalidades principais
+            5. Testar e corrigir bugs
+    
+            Agora, para a tarefa "$name", forneça apenas as subtarefas numeradas.
         """.trimIndent()
+
 
         val request = OpenAiRequest(
             model = "gpt-3.5-turbo",
             messages = listOf(Message(role = Role.ASSISTANT, content = prompt)),
-            max_tokens = 150,
+            max_tokens = 15,
             temperature = 0.7 // Para respostas mais previsíveis
         )
 

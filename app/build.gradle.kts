@@ -15,8 +15,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "OPENAI_API_KEY", "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\""
-        )
+        buildConfigField("String", "OPENAI_API_KEY", "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\"")
         println("OPENAI_API_KEY value: ${project.findProperty("OPENAI_API_KEY") ?: "Not found"}")
 
         // Habilitar suporte a BuildConfig
@@ -91,6 +90,21 @@ dependencies {
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
 
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    testImplementation("androidx.room:room-testing:$room_version")
+
+    // Testes Unitários
+    testImplementation ("junit:junit:4.13.2")
+    testImplementation ("org.mockito:mockito-core:5.14.1") // Para mockar dependências
+
+    // Testes Instrumentados
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
+
     // Material Design
     implementation ("com.google.android.material:material:1.12.0")
+
+
 }
