@@ -9,14 +9,16 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.devspace.taskbeats.R
 import com.devspace.taskbeats.data.model.CategoryUiData
+import com.devspace.taskbeats.viewmodel.TaskViewModel
 
 /**
  * Adaptador para exibir uma lista de categorias na UI.
  */
-class CategoryListAdapter :
-    ListAdapter<CategoryUiData, CategoryListAdapter.CategoryViewHolder>(CategoryDiffCallback) {
+class CategoryListAdapter(
+    private val viewModel: TaskViewModel
+) : ListAdapter<CategoryUiData, CategoryListAdapter.CategoryViewHolder>(CategoryDiffCallback) {
 
-    private lateinit var onClick: (CategoryUiData) -> Unit
+    private var onClick: ((CategoryUiData) -> Unit)? = null
 
     fun setOnClickListener(onClick: (CategoryUiData) -> Unit) {
         this.onClick = onClick
@@ -29,19 +31,19 @@ class CategoryListAdapter :
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = getItem(position)
-        holder.bind(category, onClick)
+        holder.bind(category)
     }
 
-    class CategoryViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    inner class CategoryViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val tvCategory = view.findViewById<TextView>(R.id.tv_category)
 
-        fun bind(category: CategoryUiData, onClick: (CategoryUiData) -> Unit) {
+        fun bind(category: CategoryUiData) {
             tvCategory.text = category.name
             tvCategory.isSelected = category.isSelected
 
             view.setOnClickListener {
-                val updatedCategory = category.copy(isSelected = true)
-                onClick.invoke(updatedCategory)
+                viewModel.onCategorySelected(category)
+                onClick?.invoke(category)
             }
         }
     }

@@ -35,8 +35,14 @@ class MainActivity : AppCompatActivity() {
         val rvSubTasks = findViewById<RecyclerView>(R.id.rv_subtasks)
         val fab = findViewById<FloatingActionButton>(R.id.fab)
 
+        // Inicializar o viewModel primeiro
+        val repository = TaskRepository.create(this, ApiClient.openAiService)
+        viewModel = ViewModelProvider(this, TaskViewModelFactory(repository))
+            .get(TaskViewModel::class.java)
+
+        // Agora inicializar os adaptadores
         taskAdapter = TaskListAdapter()
-        categoryAdapter = CategoryListAdapter()
+        categoryAdapter = CategoryListAdapter(viewModel)
         subTaskAdapter = SubTaskListAdapter()
 
         rvCategory.adapter = categoryAdapter
@@ -47,10 +53,6 @@ class MainActivity : AppCompatActivity() {
 
         rvSubTasks.adapter = subTaskAdapter
         rvSubTasks.layoutManager = LinearLayoutManager(this)
-
-        val repository = TaskRepository.create(this, ApiClient.openAiService)
-        viewModel = ViewModelProvider(this, TaskViewModelFactory(repository))
-            .get(TaskViewModel::class.java)
 
         // Observar mudanças nos dados
         viewModel.tasksUiData.observe(this) { tasks ->

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devspace.taskbeats.data.local.CategoryEntity
+import com.devspace.taskbeats.data.local.TaskWithSubtasks
 import com.devspace.taskbeats.data.model.CategoryUiData
 import com.devspace.taskbeats.data.model.TaskUiData
 import com.devspace.taskbeats.repository.TaskRepository
@@ -21,10 +22,14 @@ class TaskViewModel(
     private val _categoriesUiData = MutableLiveData<List<CategoryUiData>>()
     val categoriesUiData: LiveData<List<CategoryUiData>> = _categoriesUiData
 
+    private val _selectedCategoryId = MutableLiveData<Long?>(null)
+    val selectedCategoryId: LiveData<Long?> = _selectedCategoryId
+
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
 
     private var categoryMap: Map<Long, CategoryEntity> = emptyMap()
+    private var allTasks: List<TaskWithSubtasks> = emptyList()
 
     init {
         // Observar categorias em tempo real
@@ -35,38 +40,36 @@ class TaskViewModel(
                 CategoryUiData(
                     id = category.id,
                     name = category.name,
-                    isSelected = category.isSelected
+                    isSelected = _selectedCategoryId.value == category.id
                 )
             }
             _categoriesUiData.value = categoryUiData
-            updateTasksFromLiveData() // Atualiza as tarefas quando as categorias mudam
+            filterTasksBySelectedCategory()
         }
 
-        // Observar tarefas em tempo real e mapear diretamente os dados do observer
+        // Observar tarefas em tempo real
         repository.getAllTasks().observeForever { tasksWithSubtasks ->
             Log.d("TaskViewModel", "Tarefas carregadas do Room: ${tasksWithSubtasks.size}")
-            val tasksUiData = tasksWithSubtasks.map { taskWithSubtasks ->
-                val category = categoryMap[taskWithSubtasks.task.categoryId] ?: run {
-                    Log.w("TaskViewModel", "Categoria não encontrada para taskId: ${taskWithSubtasks.task.id}, categoryId: ${taskWithSubtasks.task.categoryId}")
-                    CategoryEntity(id = 0, name = "Geral")
-                }
-                TaskUiData(
-                    id = taskWithSubtasks.task.id,
-                    name = taskWithSubtasks.task.name,
-                    categoryName = category.name,
-                    isCompleted = taskWithSubtasks.task.isCompleted,
-                    isExpanded = false
-                )
-            }
-            Log.d("TaskViewModel", "Tarefas mapeadas para UI: ${tasksUiData.size}")
-            _tasksUiData.value = tasksUiData
+            allTasks = tasksWithSubtasks
+            filterTasksBySelectedCategory()
+        }
+
+        // Observar mudanças na categoria selecionada
+        _selectedCategoryId.observeForever { categoryId ->
+            Log.d("TaskViewModel", "Categoria selecionada alterada para: $categoryId")
+            filterTasksBySelectedCategory()
         }
     }
 
-    private fun updateTasksFromLiveData() {
-        val tasksWithSubtasks = repository.getAllTasks().value ?: emptyList()
-        Log.d("TaskViewModel", "Tarefas a serem mapeadas (atualização manual): ${tasksWithSubtasks.size}")
-        val tasksUiData = tasksWithSubtasks.map { taskWithSubtasks ->
+    private fun filterTasksBySelectedCategory() {
+        val tasksWithSubtasks = allTasks
+        Log.d("TaskViewModel", "Tarefas a serem filtradas: ${tasksWithSubtasks.size}")
+        val filteredTasks = if (_selectedCategoryId.value == null) {
+            tasksWithSubtasks // Mostrar todas as tarefas se nenhuma categoria estiver selecionada
+        } else {
+            tasksWithSubtasks.filter { it.task.categoryId == _selectedCategoryId.value }
+        }
+        val tasksUiData = filteredTasks.map { taskWithSubtasks ->
             val category = categoryMap[taskWithSubtasks.task.categoryId] ?: run {
                 Log.w("TaskViewModel", "Categoria não encontrada para taskId: ${taskWithSubtasks.task.id}, categoryId: ${taskWithSubtasks.task.categoryId}")
                 CategoryEntity(id = 0, name = "Geral")
@@ -79,7 +82,7 @@ class TaskViewModel(
                 isExpanded = false
             )
         }
-        Log.d("TaskViewModel", "Tarefas mapeadas para UI (atualização manual): ${tasksUiData.size}")
+        Log.d("TaskViewModel", "Tarefas mapeadas para UI: ${tasksUiData.size}")
         _tasksUiData.value = tasksUiData
     }
 
@@ -91,7 +94,8 @@ class TaskViewModel(
                 Log.d("TaskViewModel", "Nova categoria criada com ID: $categoryId")
                 // Criar a tarefa com a nova categoria
                 repository.createTaskAndGenerateSubtasks(name, description, categoryId)
-                // Confiar no LiveData para atualizar as tarefas
+                // Selecionar a nova categoria automaticamente
+                _selectedCategoryId.value = categoryId
             } catch (e: Exception) {
                 _errorMessage.value = e.message
             }
@@ -105,6 +109,7 @@ class TaskViewModel(
     }
 
     fun onCategorySelected(category: CategoryUiData) {
+        _selectedCategoryId.value = category.id
         val currentCategories = _categoriesUiData.value ?: return
         val updatedCategories = currentCategories.map { it.copy(isSelected = it.id == category.id) }
         _categoriesUiData.value = updatedCategories
