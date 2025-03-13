@@ -19,6 +19,9 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
+    private var categories = listOf<CategoryUiData>()
+    private var tasks = listOf<TaskUiData>()
+
     private val db by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -45,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         val categoryAdapter = CategoryListAdapter()
 
         categoryAdapter.setOnClickListener { selected ->
-            /*val categoryTemp = categories.map { item ->
+            val categoryTemp = categories.map { item ->
                 when {
                     item.name == selected.name && !item.isSelected -> item.copy(isSelected = true)
                     item.name == selected.name && item.isSelected -> item.copy(isSelected = false)
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 }
             taskAdapter.submitList(taskTemp)
 
-            categoryAdapter.submitList(categoryTemp)*/
+            categoryAdapter.submitList(categoryTemp)
         }
 
         rvCategory.adapter = categoryAdapter
@@ -90,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
 
-
+            categories = categoriesUiData
             withContext(Dispatchers.Main){
                 adapter.submitList(categoriesUiData)
             }
@@ -107,6 +110,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
+            tasks = tasksUiData
             withContext(Dispatchers.Main) {
                 adapter.submitList(tasksUiData)
             }
