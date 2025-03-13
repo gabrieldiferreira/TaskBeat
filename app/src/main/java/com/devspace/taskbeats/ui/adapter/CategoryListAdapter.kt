@@ -1,5 +1,6 @@
 package com.devspace.taskbeats.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,8 +41,10 @@ class CategoryListAdapter(
         fun bind(category: CategoryUiData) {
             tvCategory.text = category.name
             tvCategory.isSelected = category.isSelected
+            Log.d("CategoryListAdapter", "Vinculando categoria ${category.name} (ID: ${category.id}) - isSelected: ${category.isSelected}")
 
             view.setOnClickListener {
+                Log.d("CategoryListAdapter", "Clique na categoria ${category.name} (ID: ${category.id})")
                 viewModel.onCategorySelected(category)
                 onClick?.invoke(category)
             }

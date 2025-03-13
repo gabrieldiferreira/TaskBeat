@@ -22,7 +22,7 @@ class TaskViewModel(
     private val _categoriesUiData = MutableLiveData<List<CategoryUiData>>()
     val categoriesUiData: LiveData<List<CategoryUiData>> = _categoriesUiData
 
-    private val _selectedCategoryId = MutableLiveData<Long?>(null)
+    private val _selectedCategoryId = MutableLiveData<Long?>(null) // null representa "ALL"
     val selectedCategoryId: LiveData<Long?> = _selectedCategoryId
 
     private val _errorMessage = MutableLiveData<String>()
@@ -34,9 +34,11 @@ class TaskViewModel(
     init {
         // Observar categorias em tempo real
         repository.getAllCategories().observeForever { categories ->
-            Log.d("TaskViewModel", "Categorias carregadas: ${categories.size}")
+            Log.d("TaskViewModel", "Categorias carregadas do repository: ${categories.size}")
             categoryMap = categories.associateBy { it.id }
-            val categoryUiData = categories.map { category ->
+            // Adicionar categoria fixa "ALL" com ID 0
+            val allCategory = CategoryUiData(id = 0, name = "ALL", isSelected = _selectedCategoryId.value == null)
+            val categoryUiData = listOf(allCategory) + categories.map { category ->
                 CategoryUiData(
                     id = category.id,
                     name = category.name,
@@ -44,6 +46,7 @@ class TaskViewModel(
                 )
             }
             _categoriesUiData.value = categoryUiData
+            Log.d("TaskViewModel", "Atualizando categorias na UI: ${categoryUiData.map { "${it.name} (isSelected: ${it.isSelected})" }}")
             filterTasksBySelectedCategory()
         }
 
@@ -57,6 +60,12 @@ class TaskViewModel(
         // Observar mudanças na categoria selecionada
         _selectedCategoryId.observeForever { categoryId ->
             Log.d("TaskViewModel", "Categoria selecionada alterada para: $categoryId")
+            // Atualizar o estado isSelected das categorias
+            val currentCategories = _categoriesUiData.value ?: return@observeForever
+            val updatedCategories = currentCategories.map { category ->
+                category.copy(isSelected = category.id == categoryId || (category.id.toInt() == 0 && categoryId == null))
+            }
+            _categoriesUiData.value = updatedCategories
             filterTasksBySelectedCategory()
         }
     }
@@ -65,7 +74,7 @@ class TaskViewModel(
         val tasksWithSubtasks = allTasks
         Log.d("TaskViewModel", "Tarefas a serem filtradas: ${tasksWithSubtasks.size}")
         val filteredTasks = if (_selectedCategoryId.value == null) {
-            tasksWithSubtasks // Mostrar todas as tarefas se nenhuma categoria estiver selecionada
+            tasksWithSubtasks // Mostrar todas as tarefas quando "ALL" está selecionado
         } else {
             tasksWithSubtasks.filter { it.task.categoryId == _selectedCategoryId.value }
         }
@@ -94,8 +103,8 @@ class TaskViewModel(
                 Log.d("TaskViewModel", "Nova categoria criada com ID: $categoryId")
                 // Criar a tarefa com a nova categoria
                 repository.createTaskAndGenerateSubtasks(name, description, categoryId)
-                // Selecionar a nova categoria automaticamente
-                _selectedCategoryId.value = categoryId
+                // Selecionar a nova categoria automaticamente (exceto "ALL")
+                if (categoryId != 0L) _selectedCategoryId.value = categoryId
             } catch (e: Exception) {
                 _errorMessage.value = e.message
             }
@@ -109,9 +118,9 @@ class TaskViewModel(
     }
 
     fun onCategorySelected(category: CategoryUiData) {
-        _selectedCategoryId.value = category.id
-        val currentCategories = _categoriesUiData.value ?: return
-        val updatedCategories = currentCategories.map { it.copy(isSelected = it.id == category.id) }
-        _categoriesUiData.value = updatedCategories
+        Log.d("TaskViewModel", "Selecionando categoria: ${category.name} (ID: ${category.id})")
+        val newCategoryId = if (category.id == 0L) null else category.id // "ALL" define como null
+        Log.d("TaskViewModel", "Nova categoria selecionada: $newCategoryId (era ${_selectedCategoryId.value})")
+        _selectedCategoryId.value = newCategoryId
     }
 }
