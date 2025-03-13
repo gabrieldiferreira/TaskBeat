@@ -4,17 +4,18 @@ import android.content.Context
 import androidx.room.Room
 
 object DatabaseProvider {
-    private var INSTANCE: TaskBeatDatabase? = null
+    @Volatile
+    private var instance: TaskBeatDatabase? = null
 
     fun getDatabase(context: Context): TaskBeatDatabase {
-        return INSTANCE ?: synchronized(this) {
-            val instance = Room.databaseBuilder(
+        return instance ?: synchronized(this) {
+            instance ?: Room.databaseBuilder(
                 context.applicationContext,
                 TaskBeatDatabase::class.java,
-                "taskbeat_db"
-            ).build()
-            INSTANCE = instance
-            instance
+                "database-task-beat"
+            )
+                .fallbackToDestructiveMigration()
+                .build().also { instance = it }
         }
     }
 }

@@ -10,8 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.devspace.taskbeats.R
 import com.devspace.taskbeats.data.model.CategoryUiData
 
+/**
+ * Adaptador para exibir uma lista de categorias na UI.
+ */
 class CategoryListAdapter :
-    ListAdapter<CategoryUiData, CategoryListAdapter.CategoryViewHolder>(CategoryListAdapter) {
+    ListAdapter<CategoryUiData, CategoryListAdapter.CategoryViewHolder>(CategoryDiffCallback) {
 
     private lateinit var onClick: (CategoryUiData) -> Unit
 
@@ -20,8 +23,7 @@ class CategoryListAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false)
         return CategoryViewHolder(view)
     }
 
@@ -38,21 +40,19 @@ class CategoryListAdapter :
             tvCategory.isSelected = category.isSelected
 
             view.setOnClickListener {
-                onClick.invoke(category)
+                val updatedCategory = category.copy(isSelected = true)
+                onClick.invoke(updatedCategory)
             }
         }
     }
 
-    companion object : DiffUtil.ItemCallback<CategoryUiData>() {
+    companion object CategoryDiffCallback : DiffUtil.ItemCallback<CategoryUiData>() {
         override fun areItemsTheSame(oldItem: CategoryUiData, newItem: CategoryUiData): Boolean {
-            return oldItem == newItem
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: CategoryUiData, newItem: CategoryUiData): Boolean {
-            return oldItem.name == newItem.name
+            return oldItem.name == newItem.name && oldItem.isSelected == newItem.isSelected
         }
-
     }
-
-
 }

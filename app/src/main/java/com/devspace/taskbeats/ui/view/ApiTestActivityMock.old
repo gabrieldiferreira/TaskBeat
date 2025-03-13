@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.devspace.taskbeats.R
 import com.devspace.taskbeats.data.local.DatabaseProvider
 import com.devspace.taskbeats.repository.TaskRepository
-import com.devspace.taskbeats.repository.TaskRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,10 +18,6 @@ class ApiTestActivityMock : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val db = DatabaseProvider.getDatabase(applicationContext)
-        repository = TaskRepositoryImpl(db.getTaskDao())
-
         testOpenAiApi()
     }
 
