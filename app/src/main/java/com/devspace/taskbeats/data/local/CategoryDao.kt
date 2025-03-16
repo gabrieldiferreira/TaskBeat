@@ -26,6 +26,14 @@ interface CategoryDao {
     suspend fun getById(id: kotlin.Long): CategoryEntity?
 
     /**
+     * Busca uma categoria específica pelo seu nome.
+     * @param name O nome da categoria.
+     * @return A categoria correspondente, ou null se não existir.
+     */
+    @Query("SELECT * FROM category_entity WHERE name = :name LIMIT 1")
+    suspend fun getByName(name: String): CategoryEntity?
+
+    /**
      * Insere ou substitui uma lista de categorias no banco de dados.
      * @param categoryEntities Lista de categorias a serem inseridas.
      */

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,9 @@ import com.devspace.taskbeats.ui.adapter.TaskListAdapter
 import com.devspace.taskbeats.viewmodel.TaskViewModel
 import com.devspace.taskbeats.viewmodel.TaskViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,7 +40,11 @@ class MainActivity : AppCompatActivity() {
         val fab = findViewById<FloatingActionButton>(R.id.fab)
 
         // Inicializar o viewModel primeiro
-        val repository = TaskRepository.create(this, ApiClient.openAiService)
+        val repository = TaskRepository.create(
+            context = this, 
+            openAiService = ApiClient.openAiService,
+            xaiService = ApiClient.xaiService
+        )
         viewModel = ViewModelProvider(this, TaskViewModelFactory(repository))
             .get(TaskViewModel::class.java)
 
@@ -102,6 +110,18 @@ class MainActivity : AppCompatActivity() {
         taskAdapter.setOnClickListener { task ->
             viewModel.onTaskClicked(task)
         }
+        
+        // Configurar listener para excluir tarefas
+        taskAdapter.setOnDeleteListener { task ->
+            confirmDeleteTask(task.id, task.name)
+        }
+        
+        // Configurar listener para marcar tarefa como concluída
+        taskAdapter.setOnCompleteListener { task ->
+            if (!task.isCompleted) {
+                moveTaskToCompleted(task.id)
+            }
+        }
 
         categoryAdapter.setOnClickListener { category ->
             viewModel.onCategorySelected(category)
@@ -110,6 +130,53 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             val bottomSheet = BottomSheetAddTaskFragment(viewModel)
             bottomSheet.show(supportFragmentManager, "BottomSheetAddTaskFragment")
+        }
+    }
+    
+    /**
+     * Mostra diálogo de confirmação para excluir uma tarefa
+     */
+    private fun confirmDeleteTask(taskId: Long, taskName: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Excluir Tarefa")
+            .setMessage("Tem certeza que deseja excluir a tarefa '$taskName'?")
+            .setPositiveButton("Sim") { _, _ ->
+                deleteTask(taskId)
+            }
+            .setNegativeButton("Não", null)
+            .show()
+    }
+    
+    /**
+     * Exclui uma tarefa pelo ID
+     */
+    private fun deleteTask(taskId: Long) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val task = viewModel.getTaskById(taskId)
+                if (task != null) {
+                    viewModel.deleteTask(task)
+                    Toast.makeText(this@MainActivity, "Tarefa excluída com sucesso", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Erro ao excluir tarefa: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
+    /**
+     * Move uma tarefa para a categoria "Tarefas Realizadas"
+     */
+    private fun moveTaskToCompleted(taskId: Long) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val success = viewModel.moveTaskToCompletedCategory(taskId)
+                if (success) {
+                    Toast.makeText(this@MainActivity, "Tarefa concluída e movida para 'Tarefas Realizadas'", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Erro ao marcar tarefa como concluída: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

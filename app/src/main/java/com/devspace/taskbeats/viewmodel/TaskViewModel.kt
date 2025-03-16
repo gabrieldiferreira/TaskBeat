@@ -6,9 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devspace.taskbeats.data.local.CategoryEntity
+import com.devspace.taskbeats.data.local.TaskEntity
 import com.devspace.taskbeats.data.local.TaskWithSubtasks
 import com.devspace.taskbeats.data.model.CategoryUiData
 import com.devspace.taskbeats.data.model.TaskUiData
+import com.devspace.taskbeats.data.model.xai.TaskSuggestion
 import com.devspace.taskbeats.repository.TaskRepository
 import kotlinx.coroutines.launch
 
@@ -27,6 +29,12 @@ class TaskViewModel(
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
+    
+    private val _taskSuggestions = MutableLiveData<List<TaskSuggestion>>()
+    val taskSuggestions: LiveData<List<TaskSuggestion>> = _taskSuggestions
+    
+    private val _isLoadingSuggestions = MutableLiveData<Boolean>(false)
+    val isLoadingSuggestions: LiveData<Boolean> = _isLoadingSuggestions
 
     private var categoryMap: Map<Long, CategoryEntity> = emptyMap()
     private var allTasks: List<TaskWithSubtasks> = emptyList()
@@ -111,6 +119,23 @@ class TaskViewModel(
         }
     }
 
+    /**
+     * Cria uma tarefa com uma categoria existente
+     */
+    fun createTaskWithExistingCategory(name: String, description: String?, categoryId: Long) {
+        viewModelScope.launch {
+            try {
+                Log.d("TaskViewModel", "Criando tarefa com categoria existente ID: $categoryId")
+                // Criar a tarefa com a categoria existente
+                repository.createTaskAndGenerateSubtasks(name, description, categoryId)
+                // Selecionar a categoria automaticamente
+                if (categoryId != 0L) _selectedCategoryId.value = categoryId
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            }
+        }
+    }
+
     fun onTaskClicked(task: TaskUiData) {
         val currentTasks = _tasksUiData.value ?: return
         val updatedTasks = currentTasks.map { it.copy(isExpanded = it.id == task.id && !task.isExpanded) }
@@ -122,5 +147,80 @@ class TaskViewModel(
         val newCategoryId = if (category.id == 0L) null else category.id // "ALL" define como null
         Log.d("TaskViewModel", "Nova categoria selecionada: $newCategoryId (era ${_selectedCategoryId.value})")
         _selectedCategoryId.value = newCategoryId
+    }
+
+    /**
+     * Obtém sugestões de tarefas da API XAI
+     */
+    fun getTaskSuggestions(query: String, categoryName: String) {
+        _isLoadingSuggestions.value = true
+        viewModelScope.launch {
+            try {
+                val suggestions = repository.getTaskSuggestions(query, categoryName)
+                _taskSuggestions.value = suggestions
+            } catch (e: Exception) {
+                Log.e("TaskViewModel", "Erro ao obter sugestões: ${e.message}", e)
+                _errorMessage.value = "Erro ao obter sugestões: ${e.message}"
+                _taskSuggestions.value = emptyList()
+            } finally {
+                _isLoadingSuggestions.value = false
+            }
+        }
+    }
+    
+    /**
+     * Limpa as sugestões atuais
+     */
+    fun clearSuggestions() {
+        _taskSuggestions.value = emptyList()
+    }
+    
+    /**
+     * Cria uma tarefa a partir de uma sugestão
+     */
+    fun createTaskFromSuggestion(suggestion: TaskSuggestion) {
+        viewModelScope.launch {
+            try {
+                // Verificar se a categoria já existe ou criar uma nova
+                val categoryId = repository.getCategoryByName(suggestion.category)?.id
+                    ?: repository.insertCategory(CategoryEntity(name = suggestion.category))
+                
+                // Criar a tarefa com a categoria
+                val taskWithSubtasks = repository.createTaskAndGenerateSubtasks(
+                    name = suggestion.title,
+                    description = suggestion.description,
+                    categoryId = categoryId
+                )
+                
+                // Selecionar a categoria automaticamente
+                if (categoryId != 0L) _selectedCategoryId.value = categoryId
+                
+                // Limpar as sugestões após criar a tarefa
+                clearSuggestions()
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            }
+        }
+    }
+
+    /**
+     * Obtém uma tarefa pelo ID
+     */
+    suspend fun getTaskById(taskId: Long): TaskEntity? {
+        return repository.getTaskById(taskId)
+    }
+    
+    /**
+     * Exclui uma tarefa
+     */
+    suspend fun deleteTask(task: TaskEntity) {
+        repository.deleteTask(task)
+    }
+    
+    /**
+     * Move uma tarefa para a categoria "Tarefas Realizadas"
+     */
+    suspend fun moveTaskToCompletedCategory(taskId: Long): Boolean {
+        return repository.moveTaskToCompletedCategory(taskId)
     }
 }

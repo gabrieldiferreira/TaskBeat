@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/suggestions_dialog_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sugestões da IA"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+        
+    <TextView
+        android:id="@+id/suggestions_dialog_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Selecione uma das sugestões para adicionar rapidamente"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/suggestions_dialog_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+        
+    <ProgressBar
+        android:id="@+id/suggestions_dialog_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/suggestions_dialog_subtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+        
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/suggestions_dialog_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="150dp"
+        android:maxHeight="300dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/suggestions_dialog_subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_task_suggestion" />
+        
+    <TextView
+        android:id="@+id/suggestions_dialog_empty_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:text="Nenhuma sugestão disponível para estes critérios."
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/suggestions_dialog_subtitle"
+        app:layout_constraintBottom_toTopOf="@id/suggestions_dialog_btn_close"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+       
+    <Button
+        android:id="@+id/suggestions_dialog_btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Fechar"
+        app:layout_constraintTop_toBottomOf="@+id/suggestions_dialog_recycler_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

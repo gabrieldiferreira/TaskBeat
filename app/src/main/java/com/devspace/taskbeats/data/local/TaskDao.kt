@@ -45,6 +45,15 @@ interface TaskDao {
     @Query("SELECT * FROM task_entity WHERE id = :taskId")
     suspend fun getTaskWithSubtasksById(taskId: Long): TaskWithSubtasks?
 
+    @Query("SELECT * FROM task_entity WHERE id = :taskId")
+    suspend fun getTaskById(taskId: Long): TaskEntity?
+
     @Query("SELECT * FROM sub_task_entity WHERE taskId = :taskId")
     fun getSubtasksForTask(taskId: Long): LiveData<List<SubTaskEntity>>
+
+    /**
+     * Obtém as tarefas mais recentes, limitadas pelo parâmetro limit
+     */
+    @Query("SELECT * FROM task_entity ORDER BY id DESC LIMIT :limit")
+    suspend fun getRecentTasks(limit: Int): List<TaskEntity>
 }
