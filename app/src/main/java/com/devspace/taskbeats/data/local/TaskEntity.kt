@@ -4,6 +4,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 
+/**
+ * Entidade que representa uma tarefa no banco de dados.
+ * As tarefas são associadas a uma categoria e podem ter subtarefas.
+ */
 @Entity(
     tableName = "task_entity",
     foreignKeys = [ForeignKey(
