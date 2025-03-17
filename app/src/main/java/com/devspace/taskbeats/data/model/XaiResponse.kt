@@ -1,4 +1,4 @@
-package com.devspace.taskbeats.data.model.xai
+package com.devspace.taskbeats.data.model
 
 import com.google.gson.annotations.SerializedName
 
