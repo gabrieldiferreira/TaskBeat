@@ -10,7 +10,7 @@ import com.devspace.taskbeats.data.local.TaskEntity
 import com.devspace.taskbeats.data.local.TaskWithSubtasks
 import com.devspace.taskbeats.data.model.CategoryUiData
 import com.devspace.taskbeats.data.model.TaskUiData
-import com.devspace.taskbeats.data.model.xai.TaskSuggestion
+import com.devspace.taskbeats.data.model.TaskSuggestion
 import com.devspace.taskbeats.repository.TaskRepository
 import kotlinx.coroutines.launch
 

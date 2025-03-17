@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.devspace.taskbeats.R
-import com.devspace.taskbeats.data.model.xai.TaskSuggestion
+import com.devspace.taskbeats.data.model.TaskSuggestion
 
 /**
  * Adaptador para exibir sugestões de tarefas da API XAI

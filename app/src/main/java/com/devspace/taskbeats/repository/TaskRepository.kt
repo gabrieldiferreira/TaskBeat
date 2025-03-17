@@ -11,26 +11,23 @@ import com.devspace.taskbeats.data.local.TaskDao
 import com.devspace.taskbeats.data.local.TaskEntity
 import com.devspace.taskbeats.data.local.TaskWithSubtasks
 import com.devspace.taskbeats.data.model.Message
-import com.devspace.taskbeats.data.model.OpenAiRequest
-import com.devspace.taskbeats.data.model.Role
-import com.devspace.taskbeats.data.model.xai.TaskContext
-import com.devspace.taskbeats.data.model.xai.TaskSuggestion
-import com.devspace.taskbeats.data.model.xai.XaiMessage
-import com.devspace.taskbeats.data.model.xai.XaiRequest
-import com.devspace.taskbeats.data.remote.OpenAiService
+import com.devspace.taskbeats.data.model.TaskContext
+import com.devspace.taskbeats.data.model.TaskSuggestion
+import com.devspace.taskbeats.data.model.XaiRequest
 import com.devspace.taskbeats.data.remote.XaiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+
 class TaskRepository(
     private val taskDao: TaskDao,
     private val categoryDao: CategoryDao,
-    private val openAiService: OpenAiService,
+    private val openAiService: XaiService,
     private val xaiService: XaiService
 ) {
 
     companion object {
-        fun create(context: Context, openAiService: OpenAiService, xaiService: XaiService): TaskRepository {
+        fun create(context: Context, openAiService: XaiService, xaiService: XaiService): TaskRepository {
             val database = DatabaseProvider.getDatabase(context)
             return TaskRepository(
                 taskDao = database.getTaskDao(),
@@ -148,15 +145,19 @@ class TaskRepository(
         """.trimIndent()
 
 
-        val request = OpenAiRequest(
+        val request = XaiRequest(
             model = "gpt-3.5-turbo",
-            messages = listOf(Message(role = Role.ASSISTANT, content = prompt)),
-            max_tokens = 15,
+            messages = listOf(
+                com.devspace.taskbeats.data.model.Message(
+                    role = "user",
+                    content = prompt
+                )
+            ),
             temperature = 0.7 // Para respostas mais previsíveis
         )
 
         val subtaskEntities = try {
-            val response = openAiService.generateSubTasks(request)
+            val response = openAiService.getSuggestions(request)
             if (!response.isSuccessful) {
                 when (response.code()) {
                     429 -> {
@@ -233,8 +234,8 @@ class TaskRepository(
             
             // Criar a requisição no formato da API X.AI
             val messages = listOf(
-                XaiMessage(role = "system", content = systemPrompt),
-                XaiMessage(role = "user", content = userPrompt)
+                Message(role = "system", content = systemPrompt),
+                Message(role = "user", content = userPrompt)
             )
             
             val request = XaiRequest(

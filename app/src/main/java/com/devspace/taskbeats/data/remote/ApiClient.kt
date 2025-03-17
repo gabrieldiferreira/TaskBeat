@@ -59,8 +59,8 @@ object ApiClient {
         .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
         .build()
 
-    val openAiService: OpenAiService by lazy {
-        openAiRetrofit.create(OpenAiService::class.java)
+    val openAiService: XaiService by lazy {
+        openAiRetrofit.create(XaiService::class.java)
     }
 
     val xaiService: XaiService by lazy {
