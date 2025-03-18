@@ -14,29 +14,12 @@ object ApiClient {
     private const val OPENAI_BASE_URL = "https://api.openai.com/v1/"
     private const val XAI_BASE_URL = "https://api.x.ai/v1/" // API X.AI oficial
 
-    private val openAiOkHttpClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .addInterceptor { chain ->
-            val apiKey = BuildConfig.OPENAI_API_KEY.trim()
-            Log.d("ApiClient", "API Key carregada: $apiKey")
-            if (apiKey.isEmpty()) {
-                Log.e("ApiClient", "API Key is empty or not loaded!")
-            }
-            val request = chain.request().newBuilder()
-                .addHeader("Authorization", "Bearer $apiKey")
-                .addHeader("Content-Type", "application/json")
-                .build()
-            chain.proceed(request)
-        }
-        .build()
-
     private val xaiOkHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             // Usar a API key fornecida diretamente para testes
-            val apiKey = "xai-7kKEIuscbP6w4zbrqJ83HPHZbBONlAw5MqskQofCGOVbs7svIWuZ4W6P74OPa2idXx7HROFOugCFOeUn"
+            val apiKey = BuildConfig.XAI_API_KEY.trim()
             Log.d("ApiClient", "X.AI API Key configurada")
             
             val request = chain.request().newBuilder()
@@ -49,7 +32,7 @@ object ApiClient {
 
     private val openAiRetrofit: Retrofit = Retrofit.Builder()
         .baseUrl(OPENAI_BASE_URL)
-        .client(openAiOkHttpClient)
+        .client(xaiOkHttpClient)
         .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
         .build()
 

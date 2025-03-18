@@ -15,9 +15,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "OPENAI_API_KEY", "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\"")
+
         buildConfigField("String", "XAI_API_KEY", "\"${project.findProperty("XAI_API_KEY") ?: ""}\"")
-        println("OPENAI_API_KEY value: ${project.findProperty("OPENAI_API_KEY") ?: "Not found"}")
         println("XAI_API_KEY value: ${project.findProperty("XAI_API_KEY") ?: "Not found"}")
 
         // Habilitar suporte a BuildConfig
