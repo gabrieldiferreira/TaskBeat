@@ -65,31 +65,14 @@ Run:
 Below are two demo videos for TaskBeat. Click the links to view or download. If your browser supports HTML5 video playback and GitHub serves the asset as a playable media type, the embedded players below may work directly on the README page.
 
 - Demo 1 — Quick tour
-  - Link: https://github.com/user-attachments/assets/f19676b9-be1a-4cbd-9c54-104da5c0cb45
-  - Embedded (HTML5):
-  ```html
-  <video controls width="640">
-    <source src="https://github.com/user-attachments/assets/f19676b9-be1a-4cbd-9c54-104da5c0cb45" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  ```
+  
+https://github.com/user-attachments/assets/f19676b9-be1a-4cbd-9c54-104da5c0cb45
+
 
 - Demo 2 — Feature walkthrough
-  - Link: https://github.com/user-attachments/assets/3920ca90-def0-407a-b623-ec45bd258915
-  - Embedded (HTML5):
-  ```html
-  <video controls width="640">
-    <source src="https://github.com/user-attachments/assets/3920ca90-def0-407a-b623-ec45bd258915" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  ```
+  
+https://github.com/user-attachments/assets/3920ca90-def0-407a-b623-ec45bd258915
 
-Notes:
-- If the videos do not autoplay or embed on GitHub, open the raw links directly in a new tab to download/play them locally.
-- For nicer README rendering on GitHub, consider adding a GIF or a thumbnail image (e.g., `assets/demo-thumb.png`) and link that to the video URL:
-  ```markdown
-  [![Watch the demo](assets/demo-thumb.png)](https://github.com/user-attachments/assets/f19676b9-be1a-4cbd-9c54-104da5c0cb45)
-  ```
 
 ---
 
